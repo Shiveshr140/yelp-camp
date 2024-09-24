@@ -78,6 +78,11 @@ passport.deserializeUser(User.deserializeUser())
 
 //// flash middleware, so that we do not have to pass it throw every res.render(), every templates have automatically access to this variable
 app.use((req, res, next)=>{
+  //returnTo behaviour, after trying /new w/o login session will have returnTo 
+  console.log(req.session) 
+  // res.locals.returnTo = req.session
+  // after adding passport, for showing/hiding logout button
+  res.locals.currentUser = req.user
   res.locals.success = req.flash('success')
   res.locals.error = req.flash('error')
   next()
@@ -1126,8 +1131,49 @@ app.use("/", userRoutes)
 ////***************************** Login routes
 // users.js
 
+////**************************** isLoggedln middleware 
+// So now that we have the ability to log in, let's protect one of our basic routes, like making a new campground. You can't submit a new campground
+// unless you are currently signed in. So how are we going to do that? Well, there's a couple of things. One, we need to know or be able to check
+// if somebody is currently signed in or if they are authenticated.
+
+// Now, when we did our auth from scratch, we would store a user ID or something similar in the session, and just look for that.
+// And we could do something like that ourself, but Passport actually gives us a helper method. It uses the session to be clear
+// and it stores its own stuff in there. And that's the whole serialize and deserialize user, if you remember those.That all has to do with how information is stored
+// and retrieved from the session. Anyway, what we can do is use this helper method that comes from Passport, it's called, isAuthenticated and it's automatically added to the request object itself.
+
+// Go to campgrounds.js in routes and do changes in /new, and create a middlware.js 
+
+////******************************* Adding Logout
+// let's give the user the ability to logout, it seems somewhat important. And with Passport it's actually very easy. There is a method added to our request object automatically
+// called login, there's also logout.
+// add route in user.js in routes
+// add some links in navbar in navbar.ejs
 
 
+////****************************** currentUser Helper
+// We wanna show these user links depending upon whether they logged in or not, how we know if someone is logged in. Currently, Passport is just taken care of,
+// basically giving us this nice method, isAuthenticated, but how can I easily get access to the actual user itself, the object or the ID or something around the user? Well, it's really easy.
+// There is something on the request called user, to automatically put there for us, request.user. So that will contain information about the user.
+// it is going to be automatically filled in with the deserialized information from the session. So the session stores the serialized user,
+// Passport is going to deserialize, unserialize it and fill in request.user with that data.
+// just like I made flash i.e success and error available to to every request you can make req.user also add that too
+
+////*********************************** Fixing register route
+// Now when we register it will directly take you to /campgrounds w/o log in fix that
+// And the way that we do this is there's a helper method called login on our request. We also had req.logout. We have a req.login.
+// It's from Passport, and it establishes a login session. And it says passport.authenticate, the middleware automatically does this for us.
+// This is primarily used when users register or sign up when we can invoke login to automatically log in the newly registered user.
+// And that's exactly what we want.
+// make changes in /register route
+
+
+////******************************** Fixing registeration
+// So the final thing we should tackle, at least in terms of our basic authentication functionality is redirecting a user back
+// to wherever they were trying to go. So if I try and go edit this page right now, Silent Ghost Town, I'm not signed in. I have to log in.
+// So I'll log in, but then it just takes me back to the index to all campgrounds, and that's kind of annoying.
+// So what we could do is keep track of where a user was initially requesting when we're trying to log them in here or when we are verifying that they are authenticated.
+// If they're not, we could basically just store the URL they are requesting and then redirect back to the login,
+// Go to middleware.js, Inclue that req.session.returnTo in here app.use also
 
 
 // app.get("/fakeuser", async (req,res)=>{
