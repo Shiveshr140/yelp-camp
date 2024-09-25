@@ -11,9 +11,25 @@ const { Schema } = mongoose;
 
 // That means we need to update our campground.js
 
+// const reviewSchema = new Schema({
+//   body: String,
+//   rating: Number,
+// });
+
+// module.exports = mongoose.model("Review", reviewSchema);
+
+////*************************
+
+////**************************************** Reviews Permission
+// We'll add in a new field, we'll call it author. show.ejs
+
 const reviewSchema = new Schema({
   body: String,
   rating: Number,
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 
 module.exports = mongoose.model("Review", reviewSchema);

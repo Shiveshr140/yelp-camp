@@ -162,6 +162,9 @@ router.post(
     req.flash("success", "welcome back!");
     // const redirectUrl = req.session.returnTo || "/campgrounds";
     const redirectUrl = res.locals.returnTo || "/campgrounds";
+    console.log("rd", redirectUrl);
+    // then we do not need this, to delete anything from object
+    delete res.locals.returnTo;
     res.redirect(redirectUrl);
   }
 );

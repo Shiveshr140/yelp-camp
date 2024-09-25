@@ -1184,6 +1184,72 @@ app.use("/", userRoutes)
 //   res.send(newUser)
 // })
 
+// app.all("*", (req, res, next)=>{
+//   next(new ExpressError("Page Not Found!!!", 404))
+//  })
+ 
+ 
+//  app.use((err, req, res, next)=>{
+//   const {statusCode=500} = err;
+//   if(!err.message) err.message = "Something went wrong!!"
+//    res.status(statusCode).render("error.ejs", {err})
+//  })
+ 
+ 
+//  app.listen(3000, () => {
+//   console.log("listening to the port 3000!!");
+//  });
+
+
+
+
+////********************************************** Basic Authorization
+
+////****************** Adding an author to campground
+// now that we have our basic authentication done, let's go ahead and connect the user model in some way with particular campgrounds and particular reviews
+// so that I can create a review and it will be associated with my account and I'm the only one who can edit it or delete it
+// or same thing for a campground. So let's start with a campground model. We'll add a field to each campground that is just a user ID.
+// We'll call it owner or author. And when you save a new campground, when you create one rather, we will take your current user ID,
+// whatever is stored in request dot user, and save that on the campground. Then we can look you up. We can look the user up for each campground.
+// models/campground.js, seeds/index.js, campgrounds.js in routes, show.ejs
+
+
+////****************** Showing and hiding Edit/delete
+// Basic concept of authorization what access a user can have i.e user can delete edit campground that was not made by them.
+// So there's two things we definitely wanna do. The easy one to start with is just don't show these edit/delete buttons unless I'm logged in as the owner of this campground.
+// show.ejs
+
+////******************* Campground Permission
+//  we are successfully hiding the edit and delete buttons if you don't own the campground. But I can still send a request, you know,
+// through Postman, for example. Or, I mean, actually I think I can just go to /edits at this point, So we definitely wanna protect this route as well. Not to mention the actual PUT and DELETE routes
+// where somebody could just send a Postman request or an AJAX request and delete or update somebody else's campground.
+// routes/campground.js
+
+
+////*********************** Authorization middleware
+// So next up, let's take this functionality where we are verifying that the currently signed in user has permission to delete or update
+// or basically they're the owner of a campground that they're trying to act upon. Let's take that logic here to find a campground
+// by the ID in the params and then check to see if request.user.id equals the campgrounds author. Let's put that into Middleware.
+// routes/campgorunds.js
+
+
+////************************ Reviews Permission
+// we're going to repeat a similar process that we just did for campgrounds, for reviews. So I wanna make sure first of all that you have to be logged in to even see this add review form
+// and you have to be logged in to make a review. But then also once you do make a review, we want to connect it with you, with the person who owns it, which means
+// that each review needs to have an associated author.
+// models/reviews.js
+// We want if you are not logged you should not see that add reviews form, show.ejs
+
+//************************* More Reviews Authorization
+// our next goal is to display the username of the reviewer.
+// Suppose I made 2 reviews with 2 different ids, Alright, so now we have two different reviews, wo different user names that should be associated
+// or two different user IDs rather associated with each one. So, it's similar to what we did here on a campground. We had to populate the author
+// and we also populated these reviews. Take a look at routes/campgrounds.js at toute /:id, two populated fields populate("reviews").populate("author")
+// What we wanna do now is instead, or in addition, rather for each one of those reviews that we're populating, we wanna populate its author.
+// So, we have two different authors, right? This is the author of the campground we're populating, we wanna populate the author of each review. So to do that,
+// routes/campgrounds.js
+
+
 app.all("*", (req, res, next)=>{
   next(new ExpressError("Page Not Found!!!", 404))
  })
@@ -1199,3 +1265,7 @@ app.all("*", (req, res, next)=>{
  app.listen(3000, () => {
   console.log("listening to the port 3000!!");
  });
+
+
+
+

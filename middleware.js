@@ -1,3 +1,8 @@
+const ExpressError = require("./utlis/ExpressError");
+const { campgroundSchema, reviewSchema } = require("./schemas.js");
+const Campground = require("./models/campground");
+const Review = require("./models/review.js");
+
 // module.exports.isLoggedIn = (req, res, next) => {
 //   if (!req.isAuthenticated()) {
 //     req.flash("error", "you must be signed in!");
@@ -25,7 +30,7 @@
 //   next();
 // };
 
-////************************** returnTo behaviour
+////************************** returnTo behaviour && add other middlwares
 // add the code that creates a new middleware function called storeReturnTo which is used to save the returnTo value from the session (req.session.returnTo) to res.locals:
 
 module.exports.isLoggedIn = (req, res, next) => {
@@ -45,4 +50,55 @@ module.exports.storeReturnTo = (req, res, next) => {
     res.locals.returnTo = req.session.returnTo;
   }
   next();
+};
+
+module.exports.validateCampground = (req, res, next) => {
+  const { error } = campgroundSchema.validate(req.body);
+  if (error) {
+    const msg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(msg, 400);
+  } else {
+    next();
+  }
+};
+
+module.exports.isAuthor = async (req, res, next) => {
+  const { id } = req.params;
+  const campground = await Campground.findById(id);
+  if (!campground.author.equals(req.user._id)) {
+    req.flash(
+      "error",
+      "you do not have the permission to update the campground!"
+    );
+    return res.redirect(`/campgrounds/${id}`);
+  }
+  // otherwise move ahead user does have permission to change the campground
+  next();
+};
+
+// After reviews authorization
+// for reviews, /campgrounds/id/reviews/reviewId
+module.exports.isReviewAuthor = async (req, res, next) => {
+  const { id, reviewId } = req.params;
+  const review = await Review.findById(reviewId);
+  if (!review.author.equals(req.user._id)) {
+    req.flash(
+      "error",
+      "you do not have the permission to update the campground!"
+    );
+    return res.redirect(`/campgrounds/${id}`);
+  }
+  // otherwise move ahead user does have permission to change the campground
+  next();
+};
+
+module.exports.validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
+  console.log("error", error);
+  if (error) {
+    const msg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(msg, 400);
+  } else {
+    next();
+  }
 };

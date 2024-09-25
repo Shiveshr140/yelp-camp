@@ -61,7 +61,7 @@
 <!-- validation textarea -->
 <!-- still hava a problem somebody could make an empty review aby sending request through postman, follow the same steps  -->
 
-<%= layout("layouts/boilerplate") %>
+<!-- <%= layout("layouts/boilerplate") %>
 
 <div class="row mb-3">
   <div class="col-md-6">
@@ -136,6 +136,106 @@
         >
           <button class="btn btn-sm btn-danger">Delete</button>
         </form>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</div> -->
+
+<!-- *************************************************** -->
+
+<!-- ****** Authorization -->
+<!-- Add author after authorization -->
+<!-- Show hide edit/delete buttons, we need to check if currentUser exist otherwise it will through error if not exist -->
+<!-- add card subttitle after reviews authorization -->
+<!-- also hide the delete button user does not made that review, simply can not delete it -->
+
+<%= layout("layouts/boilerplate") %>
+
+<div class="row mb-3">
+  <div class="col-md-6">
+    <div class="card">
+      <img src="<%= campground.image %>" class="card-img-top" alt="..." />
+      <div class="card-body">
+        <h5 class="card-title"><%= campground.title %></h5>
+        <p class="card-text"><%= campground.description %></p>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item text-muted"><%= campground.location %></li>
+        <li class="list-group-item text-muted">
+          Submitted by <%= campground.author.username %>
+        </li>
+        <li class="list-group-item">Rs <%= campground.price %>/night</li>
+        <li class="list-group-item">A third item</li>
+      </ul>
+      <% if(currentUser && campground.author.equals(currentUser._id)) { %>
+      <div class="card-body">
+        <a
+          class="card-link btn btn-info"
+          href="/campgrounds/<%= campground._id %>/edit"
+          >Edit</a
+        >
+        <form
+          class="d-inline"
+          action="/campgrounds/<%= campground._id %>?_method=delete"
+          method="POST"
+        >
+          <button class="card-link btn btn-danger">Delete</button>
+        </form>
+      </div>
+      <% } %>
+    </div>
+  </div>
+  <div class="col-6">
+    <% if(currentUser) { %>
+    <h2>Leave a Review</h2>
+    <form
+      action="/campgrounds/<%= campground._id %>/reviews"
+      method="POST"
+      class="mb-3 validated-form"
+      novalidate
+    >
+      <div class="mb-3">
+        <label for="rating" class="form-label">Rating</label>
+        <input
+          type="range"
+          class="form-range"
+          id="rating"
+          name="review[rating]"
+          min="1"
+          max="5"
+        />
+      </div>
+      <div class="mb-3 d-flex flex-column">
+        <label class="form-label" for="body">Review</label>
+        <textarea
+          class=""
+          name="review[body]"
+          id="body"
+          cols="30"
+          rows="10"
+          required
+        ></textarea>
+        <div class="valid-feedback">Looks good!</div>
+      </div>
+      <button class="btn btn-success">Submit</button>
+    </form>
+    <% } %> <% for(let review of campground.reviews) {%>
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Rating: <%= review.rating %></h5>
+        <h6 class="card-subtitle mb-2 text-body-secondary">
+          By <%= review.author.username %>
+        </h6>
+        <p class="card-text">Review: <%= review.body %></p>
+        <% if(currentUser && campground.author.equals(currentUser._id)) { %>
+        <form
+          action="/campgrounds/<%= campground._id %>/reviews/<%= review._id %>?_method=DELETE"
+          method="POST"
+        >
+          <button class="btn btn-sm btn-danger">Delete</button>
+        </form>
+        <% } %>
       </div>
     </div>
     <% } %>
