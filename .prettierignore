@@ -1,0 +1,6 @@
+# Ignore a specific file
+app.js 
+routes/campgrounds.js
+routes/reviews.js
+views/partials/flash.ejs
+# routes/users.js
